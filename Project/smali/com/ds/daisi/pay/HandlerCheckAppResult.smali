@@ -65,6 +65,19 @@
 .method public onCheckAppResult(II)V
     .locals 3
 
+    # === 插入的代码 ===
+    
+    const-string v0, "【onCheckAppResult】-> 111111111111111111111111"
+    
+    invoke-static {v0}, Lcom/android/killer/Log;->LogStr(Ljava/lang/String;)V
+    
+    
+    iget-object v0, p0, Lcom/ds/daisi/pay/HandlerCheckAppResult;->appContext:Lcom/ds/daisi/AppContext;
+    const/4 v1, 0x2
+    iput v1, v0, Lcom/ds/daisi/AppContext;->STATE_APP:I
+    # === 插入结束 ===
+
+
     .line 19
     iget-object v0, p0, Lcom/ds/daisi/pay/HandlerCheckAppResult;->commonLog:Lcom/ds/daisi/log/CommonLog;
 

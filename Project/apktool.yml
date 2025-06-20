@@ -1,5 +1,5 @@
 !!brut.androlib.meta.MetaInfo
-apkFileName: (英勇之地脚本)调试.apk
+apkFileName: project.apk
 compressionType: false
 doNotCompress:
 - assets/script.atc
