@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:gravity="center_horizontal" android:orientation="vertical" android:background="@android:color/white" android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <RelativeLayout android:background="@color/blue1" android:paddingLeft="@dimen/distance_10" android:paddingRight="@dimen/distance_10" android:layout_width="fill_parent" android:layout_height="45.0dip">
+        <LinearLayout android:orientation="horizontal" android:id="@id/id_ll_navigation" android:paddingLeft="@dimen/distance_5" android:layout_width="@dimen/distance_40" android:layout_height="fill_parent" android:layout_alignParentLeft="true">
+            <ImageView android:layout_gravity="center_vertical" android:layout_width="wrap_content" android:layout_height="wrap_content" android:src="@drawable/img_side_navigation" />
+        </LinearLayout>
+        <RelativeLayout android:gravity="right" android:orientation="horizontal" android:id="@id/id_rl_msg" android:paddingRight="@dimen/distance_5" android:layout_width="@dimen/distance_40" android:layout_height="fill_parent" android:layout_alignParentRight="true">
+            <ImageView android:layout_width="wrap_content" android:layout_height="wrap_content" android:src="@drawable/msg_right_second_img" android:layout_centerInParent="true" />
+            <ImageView android:id="@id/id_img_red_dot" android:visibility="invisible" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/distance_10" android:src="@drawable/img_dot_msg" android:layout_alignParentTop="true" android:layout_alignParentRight="true" />
+        </RelativeLayout>
+        <TextView android:textSize="18.0sp" android:textColor="@color/white" android:id="@id/id_tv_title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:singleLine="true" android:layout_centerInParent="true" />
+    </RelativeLayout>
+    <com.viewpagerindicator.TabPageIndicator android:id="@id/indicator" android:layout_width="fill_parent" android:layout_height="wrap_content" />
+    <TextView android:textSize="13.0sp" android:textColor="@color/red3" android:gravity="center" android:id="@id/tv_resolution_unsupport" android:background="@color/color_yellow" android:paddingTop="5.0dip" android:paddingBottom="5.0dip" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginLeft="15.0dip" android:layout_marginTop="10.0dip" android:layout_marginRight="15.0dip" android:text="@string/resolution_unsupport" />
+    <com.ds.daisi.customview.RTDViewPager android:layout_gravity="center" android:id="@id/viewpager" android:layout_width="fill_parent" android:layout_height="0.0dip" android:layout_weight="1.0" />
+</LinearLayout>

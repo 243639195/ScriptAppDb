@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:background="@color/gray6" android:padding="@dimen/distance_15" android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <ImageView android:id="@id/id_iv_register_one" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/distance_10" android:src="@drawable/img_register_step" />
+    <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:background="@drawable/bg_white_box" android:paddingLeft="@dimen/distance_10" android:layout_width="fill_parent" android:layout_height="@dimen/distance_40" android:layout_marginTop="@dimen/distance_25">
+        <TextView android:gravity="center_vertical" android:layout_width="wrap_content" android:layout_height="fill_parent" android:drawableLeft="@drawable/img_account" android:drawablePadding="@dimen/distance_10" />
+        <EditText android:textSize="@dimen/text_sp14" android:textColor="@color/gray8" android:gravity="center_vertical" android:id="@id/id_user_account" android:background="@null" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_marginLeft="@dimen/distance_10" android:hint="@string/please_input_account" android:singleLine="true" />
+    </LinearLayout>
+    <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:background="@drawable/bg_white_box" android:paddingLeft="@dimen/distance_10" android:layout_width="fill_parent" android:layout_height="@dimen/distance_40" android:layout_marginTop="@dimen/distance_25">
+        <TextView android:gravity="center_vertical" android:layout_width="wrap_content" android:layout_height="fill_parent" android:drawableLeft="@drawable/img_password" android:drawablePadding="@dimen/distance_10" />
+        <EditText android:textSize="@dimen/text_sp14" android:textColor="@color/gray8" android:gravity="center_vertical" android:id="@id/id_user_password" android:background="@null" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_marginLeft="@dimen/distance_10" android:hint="@string/please_input_password" android:singleLine="true" />
+    </LinearLayout>
+    <Button android:id="@id/id_step_next" android:layout_marginTop="@dimen/distance_27" android:text="@string/step_next" style="@style/button_register" />
+    <TextView android:textSize="@dimen/text_sp14" android:textColor="@color/gray8" android:gravity="center" android:id="@id/id_tv_license" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/distance_20" />
+</LinearLayout>

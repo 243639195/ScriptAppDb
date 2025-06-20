@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:background="@color/white" android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <ImageView android:layout_width="fill_parent" android:layout_height="fill_parent" android:src="@drawable/img_splash_logo" android:scaleType="fitXY" />
+    <RelativeLayout android:layout_width="fill_parent" android:layout_height="64.0dip" android:layout_alignParentBottom="true">
+        <TextView android:textSize="@dimen/text_sp14" android:textColor="@color/blank7" android:gravity="center" android:id="@id/id_tv_msg" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/distance_15" android:text="@string/server_authenticating" />
+        <LinearLayout android:gravity="center" android:orientation="horizontal" android:id="@id/id_ll_dot" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/distance_10" android:layout_below="@id/id_tv_msg" />
+    </RelativeLayout>
+</RelativeLayout>

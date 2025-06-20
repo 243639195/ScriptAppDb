@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView android:background="@color/gray9" android:scrollbars="none" android:layout_width="fill_parent" android:layout_height="fill_parent" android:fillViewport="true"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="fill_parent">
+        <RelativeLayout android:background="@color/blue_title" android:layout_width="fill_parent" android:layout_height="@dimen/distance_150">
+            <RelativeLayout android:id="@id/rl_display_time" android:layout_width="wrap_content" android:layout_height="wrap_content">
+                <ImageView android:id="@id/id_app_logo" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="@dimen/distance_25" android:layout_marginTop="@dimen/distance_16" android:src="@drawable/img_app_logo" />
+                <TextView android:textSize="@dimen/text_sp12" android:textColor="@color/white" android:id="@id/id_tv_use_time" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="@dimen/distance_16" android:layout_toRightOf="@id/id_app_logo" android:layout_centerVertical="true" />
+            </RelativeLayout>
+            <Button android:textColor="@color/white" android:id="@id/btn_get_more_time" android:background="@drawable/bg_select_white_box" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="@dimen/distance_40" android:layout_marginLeft="@dimen/distance_16" android:layout_marginTop="@dimen/distance_10" android:layout_marginRight="@dimen/distance_16" android:text="@string/optionfragment_getmoretime" android:layout_below="@id/rl_display_time" />
+        </RelativeLayout>
+        <Switch android:id="@id/swtich_setting_volume_key_ctrl" android:text="@string/setting_volume_key_ctrl" style="@style/sliding_menu_switch" />
+        <View android:background="@color/gray10" style="@style/setting_splitline" />
+        <Switch android:id="@id/swtich_setting_floatview_ctrl" android:text="@string/setting_floatview_ctrl" style="@style/sliding_menu_switch" />
+        <View android:background="@color/gray10" style="@style/setting_splitline" />
+        <Switch android:id="@id/swtich_setting_waggle_stop" android:text="@string/setting_waggle_stop" style="@style/sliding_menu_switch" />
+        <View android:background="@color/gray10" style="@style/setting_splitline" />
+        <Switch android:id="@id/swtich_setting_call_stop" android:text="@string/setting_call_stop" style="@style/sliding_menu_switch" />
+        <View android:background="@color/gray10" style="@style/setting_splitline" />
+        <Switch android:id="@id/swtich_setting_vibration" android:text="@string/setting_vibration" style="@style/sliding_menu_switch" />
+        <View android:background="@color/gray10" style="@style/setting_splitline" />
+        <Switch android:id="@id/swtich_setting_open_run" android:checked="false" android:text="@string/setting_open_run_script" style="@style/sliding_menu_switch" />
+        <View android:background="@color/gray10" style="@style/setting_splitline" />
+        <Switch android:id="@id/switch_setting_word_recognition_library" android:checked="false" android:text="@string/word_recognition_library" style="@style/sliding_menu_switch" />
+        <TextView android:id="@id/button_setting_scriptlog" android:layout_marginTop="@dimen/distance_20" android:text="@string/setting_scriptlog" style="@style/text_options" />
+        <View android:background="@color/gray10" style="@style/setting_splitline" />
+        <TextView android:id="@id/setting_button_update" android:text="@string/setting_update" style="@style/text_options" />
+        <View android:background="@color/gray10" style="@style/setting_splitline" />
+        <TextView android:id="@id/button_setting_feedback" android:text="@string/user_feedback_info" style="@style/text_options" />
+    </LinearLayout>
+</ScrollView>

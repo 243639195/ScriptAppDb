@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:background="@color/gray6" android:padding="@dimen/distance_15" android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:background="@drawable/bg_white_box" android:paddingLeft="@dimen/distance_10" android:layout_width="fill_parent" android:layout_height="@dimen/distance_40" android:layout_marginTop="@dimen/distance_25">
+        <EditText android:textSize="@dimen/text_sp14" android:textColor="@color/gray8" android:gravity="center_vertical" android:id="@id/id_phone_number" android:background="@null" android:layout_width="0.0dip" android:layout_height="fill_parent" android:hint="@string/login_account_hint" android:singleLine="true" android:drawableLeft="@drawable/img_account" android:drawablePadding="@dimen/distance_10" android:layout_weight="1.0" />
+        <ImageView android:id="@id/id_img_clear_edittext" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginRight="@dimen/distance_10" android:src="@drawable/clear_edittext_img" />
+    </LinearLayout>
+    <EditText android:textSize="@dimen/text_sp14" android:textColor="@color/gray8" android:gravity="center_vertical" android:id="@id/id_input_password" android:background="@drawable/bg_white_box" android:paddingLeft="@dimen/distance_10" android:layout_width="fill_parent" android:layout_height="@dimen/distance_40" android:layout_marginTop="@dimen/distance_25" android:hint="@string/input_password" android:singleLine="true" android:maxLength="18" android:drawableLeft="@drawable/img_password" android:drawablePadding="@dimen/distance_10" android:inputType="textPassword" />
+    <CheckBox android:textSize="@dimen/text_sp14" android:textColor="@color/gray8" android:id="@id/id_cb_studio" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/distance_10" android:text="@string/user_studio" />
+    <Button android:id="@id/id_login" android:layout_marginTop="@dimen/distance_27" android:text="@string/fast_login" style="@style/button_register" />
+    <RelativeLayout android:gravity="center_vertical" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/distance_15">
+        <TextView android:textSize="@dimen/text_sp14" android:textColor="@color/blue_text" android:id="@id/id_forget_password" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/forget_password" android:layout_alignParentRight="true" android:layout_centerVertical="true" />
+    </RelativeLayout>
+</LinearLayout>

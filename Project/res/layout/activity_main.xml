@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.DrawerLayout android:id="@id/id_drawer" android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <include android:id="@id/id_drawer_content" android:layout_width="fill_parent" android:layout_height="fill_parent" layout="@layout/drawer_content" />
+    <include android:layout_gravity="left" android:id="@id/id_drawer_slide" android:layout_width="@dimen/distance_275" android:layout_height="fill_parent" layout="@layout/drawer_slide" />
+</android.support.v4.widget.DrawerLayout>

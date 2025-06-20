@@ -1,0 +1,925 @@
+Import "shanhai.lua"
+Function 脚本名称检测()
+	Dim 脚本名称 = "护肝-英勇助手"//示例 护肝-荣耀助手CS
+	If 脚本名称 = "自用热更新测试" Then 
+        Dialog.MsgBox("名称为初始名称,请务必修改",0)
+        脚本名称检测 = ""
+        Exit Function
+    End If
+    脚本名称检测 = 脚本名称
+End Function
+Function 脚本配置path()
+	Dim path 
+	Dim 路径Ret = 0
+    Dim 路径前缀 = GetSdcardDir()&"/AAAconfig"
+    TracePrint "路径前缀",路径前缀
+    //    路径前缀=路径前缀&"/"
+    路径Ret = Dir.Exist(路径前缀)
+    TracePrint 路径Ret
+    If Dir.Exist(路径前缀) = 2 Then '路径是否存在 
+    Else 
+        路径Ret = Dir.Create(路径前缀)
+        TracePrint 路径Ret
+    End If
+    路径前缀 =  GetSdcardDir()&"/AAAconfig"&"/yyzd"
+    TracePrint Dir.Exist(路径前缀)
+    If Dir.Exist(路径前缀) = 2 Then '路径是否存在 
+    Else 
+        路径Ret = Dir.Create(路径前缀)
+        TracePrint 路径Ret
+    End If
+    脚本配置path = 路径前缀
+End Function
+Function 删除已经记录包名()
+	Dim 下拉框游戏客服端table = Uip.GetAttribute("整数型下拉框游戏客服端")'返回table 数据
+	If 下拉框游戏客服端table["初始选项"] = 0 Then 
+		Dim 包名path = 脚本配置path()&"/baomin.txt"
+		dim 包名 = File.Read(包名path)
+		Dir.Delete (包名path) //删除该文本文件
+		
+		If File.Read(包名path) = null Then 
+//			ShowMessage "清除成功,重新打开游戏后,再启动脚本,自动获取包名"
+			'Dim 登陆游戏端提示信息table = Uip.GetAttribute("登陆游戏端提示信息")'返回table 数据
+			'登陆游戏端提示信息table["显示内容"] = "自动识别:请启动游戏之后,在游戏主界面启动辅助"
+			'Uip.setAttribute("登陆游戏端提示信息", 登陆游戏端提示信息table)
+			Dialog.MsgBox "包名|" & 包名 & "\n清除成功,重新打开游戏后,再启动脚本,自动获取包名,开启游戏掉线重连功能", 0
+		End If
+	Else 
+		ShowMessage "此按钮没有作用,切换登陆客户端:自动识别才有作用"
+	End If
+	
+End Function
+Function 更新测试版
+    更新数据限制检测("测试版本秒数","")
+    ////url.Get("http://127.0.0.1:9434/native/script/update?scriptDownloadUrl=https://huganfuzhu.oss-cn-hangzhou.aliyuncs.com/"&ShanHai.CharToUrl(脚本名称)&"/update2.hot")
+End Function
+Function 恢复正式版
+    更新数据限制检测("恢复正式版秒数","")
+    ////url.Get("http://127.0.0.1:9434/native/script/update?scriptDownloadUrl=https://huganfuzhu.oss-cn-hangzhou.aliyuncs.com/"&ShanHai.CharToUrl(脚本名称)&"/update.hot")
+End Function
+Function 更新测试版2
+    更新数据限制检测("测试版本秒数","更新测试版2")
+    ////url.Get("http://127.0.0.1:9434/native/script/update?scriptDownloadUrl=https://huganfuzhu.oss-cn-hangzhou.aliyuncs.com/"&ShanHai.CharToUrl(脚本名称)&"/update2.hot")
+End Function
+Function 更新数据限制检测(检测类型,类型1)
+ 	ShowMessage"开始准备更新",3000,1,1
+ 	If 检测类型 <> "测试版本秒数" and 检测类型 <> "恢复正式版秒数" Then 
+ 		ShowMessage "参数错误"
+ 		Exit Function
+ 	End If
+ 	Dim 热更新记录path = GetSdcardDir()&"/rgxconfig.txt"
+ 	Dim 脚本名称 = 脚本名称检测()
+    If 脚本名称 = "" Then 
+    	Exit Function
+    End If
+ 	Dim 初始表内容 = {"测试版本秒数":0,"恢复正式版秒数":0,"当日更新总次数":0,"当月第几天":0}
+	//判断文件是否存在//返回1表示该文件夹存在
+	If Dir.Exist(热更新记录path) = 0 Then //返回1表示该文件夹存在
+		Call file.Write(热更新记录path, Encode.TableToJson(初始表内容))
+		Delay 100
+	End If
+	Dim 记录表内容 = Encode.JsonToTable(File.Read(热更新记录path))  
+	For Each k , v In 记录表内容
+		TracePrint k,v
+	Next
+	//重置当天数据
+	ShowMessage"检测更新数据",3000,1,1
+	TracePrint "当日更新总次数",记录表内容["当日更新总次数"] 
+	If DateTime.Day() <> 记录表内容["当月第几天"] Then 
+		TracePrint 记录表内容["当月第几天"] ,DateTime.Day()
+		记录表内容["当月第几天"] = DateTime.Day()
+		记录表内容["当日更新总次数"] = 0
+	End If
+	If 记录表内容["当日更新总次数"] >= 20 Then 
+		ShowMessage "错误提示:10000"
+		Exit Function
+	End If
+	Dim 上次秒数 = 记录表内容[检测类型]//读取上次记录秒数
+	TracePrint "上次秒数",上次秒数
+	上次秒数 = CInt(上次秒数)
+	Dim 更新秒数差值 = Time() - 记录表内容[检测类型]
+	If 更新秒数差值 >= 20 Then //当前秒数减去上次秒数 >=180 三分钟则可以更新
+		ShowMessage"开始下载数据\r\n请稍等几秒",3000,1,1
+		//更新脚本
+		If 检测类型 = "测试版本秒数" Then 
+			dim 内容 = Uip.GetAttribute("文本型作者调试密码")'返回table 数据
+			Dim 追加测试版更新内容 = ""
+			If 类型1 = "更新测试版2" Then 
+				追加测试版更新内容 = "-CS"
+				url.Get("http://127.0.0.1:9434/native/script/update?scriptDownloadUrl=https://huganfuzhu.oss-cn-hangzhou.aliyuncs.com/"&ShanHai.CharToUrl(脚本名称&追加测试版更新内容)&"/update.hot")
+			Else 
+				追加测试版更新内容 = "-CSJIU"
+				url.Get("http://127.0.0.1:9434/native/script/update?scriptDownloadUrl=https://huganfuzhu.oss-cn-hangzhou.aliyuncs.com/"&ShanHai.CharToUrl(脚本名称&追加测试版更新内容)&"/update.hot")
+			End If
+		ElseIf 检测类型 = "恢复正式版秒数" Then
+			url.Get("http://127.0.0.1:9434/native/script/update?scriptDownloadUrl=https://huganfuzhu.oss-cn-hangzhou.aliyuncs.com/"&ShanHai.CharToUrl(脚本名称)&"/update.hot")
+		End If
+		记录表内容[检测类型] = Time()
+		//转换表内容到json字符串
+		记录表内容["当日更新总次数"] = 记录表内容["当日更新总次数"] + 1
+		Call file.Write(热更新记录path, Encode.TableToJson(记录表内容))//更新完记录本次更新时间
+	Else 
+		If 检测类型 = "测试版本秒数" Then 
+			ShowMessage Cstr(180-更新秒数差值)&"秒后才可以再次更新测试版"
+		ElseIf 检测类型 = "恢复正式版秒数" Then
+			ShowMessage Cstr(180-更新秒数差值)&"秒后才可以再次恢复正式版"
+		End If
+	End If
+ End Function
+ 
+ Function 复制日志
+    'dim 测试路径="/storage/emulated/0/Pictures/界面配置测试.txt"
+    Dim tb2
+    tb2 = UIP.GetAttribute("复制日志")
+    tb2["显示内容"] = "复制日志:开始读取"
+    UIP.SetAttribute "复制日志", tb2
+    Dim 日志path = GetSdcardDir()&"/com.ryzs.hg/"&"log/"'/&配置文件返回内容["rzpath"]
+    tb2 = UIP.GetAttribute("复制日志")
+    tb2["显示内容"] = "日志path:"&日志path
+    UIP.SetAttribute "复制日志", tb2
+    'delay  1500
+    Dim 路径前缀= GetSdcardDir()
+    Dim 复制目标path=路径前缀&"/Pictures/log/"'/aaa复制的最新日志.txt
+    If Dir.Exist(日志path) = 2 Then 
+        tb2["显示内容"] = "复制日志:已有日志删除日志"
+        UIP.SetAttribute "复制日志", tb2
+        Delay 500
+    Else 
+        tb2["显示内容"] = "复制日志:没有日志"
+        UIP.SetAttribute "复制日志", tb2
+        Exit Function
+    End If
+    dir.Copy(日志path,复制目标path)  //将路径1文件的拷贝到路径2文件 
+    '返回值=File.Read(复制目标path) //读取文件路径2中的文本内容
+    'TracePrint 返回值  //输出"我爱你"
+    If Dir.Exist(复制目标path) = 2 Then 
+        Dir.Delete (日志path) //删除该文本文件
+        tb2["显示内容"] = "复制日志:已经复制成功"
+    Else 
+        tb2["显示内容"] = "复制日志:没有复制成功"
+    End If
+    Dir.Delete (日志path) //删除该文本文件
+    UIP.SetAttribute "复制日志", tb2
+    
+End Function
+
+Function 保存配置
+    Dim 路径=GetSdcardDir()
+    dim 保存路径
+    Dim 保存名称table = Uip.GetAttribute("保存名称")'返回table 数据
+    Dim 当前操作配置名称
+    For Each k In 保存名称table
+        保存路径 = 路径 & "/" & k & ".txt"
+        Call file.write(保存路径, "")
+        当前操作配置名称 = k
+        Exit For
+    Next
+    UIP.SetAttribute "界面提示", {"显示内容":"操作提示:"&当前操作配置名称&"开始保存>>>"}
+    Dim json配置路径
+    json配置路径 = 路径 & "/" & ".uip.config.json"
+    TracePrint json配置路径
+//    Dim 日志路径 ="/storage/emulated/0/Pictures/日志.txt"
+//    Call File.Write(日志路径, "")
+//    Call 日志(日志路径, json配置路径& "\n")
+    Dim 文件内容 = file.Read(json配置路径)
+    TracePrint 文件内容
+//    Call 日志(日志路径, 文件内容& "\n")
+    //    Dim i
+    //    Dim 求余数
+    UIP.SetAttribute "界面提示", {"显示内容":"操作提示:"&当前操作配置名称&"保存中>>>【10秒内】"}
+    Dim table=Encode.JsonToTable(文件内容)
+    For Each k , v  In table  'k 相当于 控件名   v是控件内容
+//        Call 日志(日志路径, k & "\n")
+        Call File.Append(保存路径, k & "\n")'这一行写入控件内容 文本 
+        TracePrint k,v
+        dim table返回值 = Uip.GetAttribute(k)'返回table 数据  table数据,控件的各属性及其对应的值以Key-value的形式存储在返回的table数据中 
+        Dim json字符串
+        json字符串 = Encode.TableToJson(table返回值) 
+        Call File.Append(保存路径, json字符串 & "\n")'这一行写入 key-ualve 表 类型数据 读取时候 做转换
+//        Dialog.MsgBox json字符串, 2
+//        Exit Function
+        //        i = i + 1
+        //        求余数 = i mod 2
+        //        If 求余数 = 0 Then 
+        //            UIP.SetAttribute "界面提示", {"显示内容":"操作提示:"&当前操作配置名称&"保存中>>>"}
+        //        ElseIf 求余数 = 1 Then
+        //            UIP.SetAttribute "界面提示", {"显示内容":"操作提示:"&当前操作配置名称&"保存中>>>>>>"}
+        //        End If
+    Next
+    UIP.SetAttribute "界面提示", {"显示内容":"操作提示:"&当前操作配置名称&"保存完成>>>"}
+End Function
+Function 读取配置
+    Dim 路径=GetSdcardDir()
+    Dim 读取路径
+    Dim 保存名称table = Uip.GetAttribute("保存名称")'返回table 数据
+    Dim 当前操作配置名称
+//    For Each k In 保存名称table
+//        读取路径 = 路径 & "/" & k & ".txt"
+//        当前操作配置名称=k
+//    Next
+    读取路径 = 路径 & "/" & 保存名称table["初始文本"] & ".txt"
+    当前操作配置名称 = 保存名称table["初始文本"]
+//    Dim 日志路径 ="/storage/emulated/0/Pictures/日志.txt"
+//    Call File.Write(日志路径, "")
+    Dim 文本arr=file.readlines(读取路径)
+    Dim 行数=UBound(文本arr)+1
+    If 行数 >= 2 Then 
+        UIP.SetAttribute "界面提示", {"显示内容":"操作提示:"&当前操作配置名称&"读取中>>>"}
+    Else 
+        UIP.SetAttribute "界面提示", {"显示内容":"操作提示:"&当前操作配置名称&"数据为空,没有保存过数据"}
+        Exit Function
+    End If
+    Dim 控件名称
+    Dim table内容
+    Dim table字符串
+    Dim 现有界面配置控件table
+    //    Dim 求余数
+    UIP.SetAttribute "界面提示", {"显示内容":"操作提示:"&当前操作配置名称&"读取中>>>【10秒左右】"}
+    For i = 1 To 行数
+//        日志(日志路径, "行数" & CStr(i) & "\n")
+        If i mod 2 = 1 Then
+            控件名称 =文本arr(i-1)
+//            日志(日志路径,"aaa" & 控件名称 & "\n")
+        ElseIf 行数 mod 2 = 0 Then
+            table内容 = 文本arr(i-1)
+//            日志(日志路径,"bbb" & table内容 & "\n")
+            table字符串 = Encode.JsonToTable(table内容)
+            //根据界面配置获取读取的是 提示内容还是/选项
+            现有界面配置控件table = Uip.GetAttribute(控件名称)
+            If table字符串["提示内容"] <> null Then //根据界面配置获取读取的是 提示内容还是/选项
+            	If table字符串["提示内容"] <> 现有界面配置控件table["提示内容"] Then 
+            		table字符串["提示内容"] = 现有界面配置控件table["提示内容"]
+            	End If
+            ElseIf table字符串["选项"] <> null Then//根据界面配置获取读取的是 提示内容还是/选项
+            	table字符串["选项"] = 现有界面配置控件table["选项"]
+            End If
+            UIP.SetAttribute 控件名称, table字符串
+        End If
+        //        求余数 = i mod 3
+        //        If 求余数 = 0 Then 
+        //            UIP.SetAttribute "界面提示", {"显示内容":"操作提示:"&当前操作配置名称&"读取中>>>"}
+        //        ElseIf 求余数 = 1 Then
+        //            UIP.SetAttribute "界面提示", {"显示内容":"操作提示:"&当前操作配置名称&"读取中>>>>>>"}
+        //        ElseIf 求余数 = 2 Then
+        //            UIP.SetAttribute "界面提示", {"显示内容":"操作提示:"&当前操作配置名称&"读取中>>>>>>>>>"}
+        //        End If
+    Next
+    UIP.SetAttribute "界面提示", {"显示内容":"操作提示:"&当前操作配置名称&"读取完毕"}
+End Function
+Function 保存配置1
+    Dim 路径=GetSdcardDir()
+    dim 保存路径
+    Dim 保存名称table = Uip.GetAttribute("保存名称2")'返回table 数据
+    Dim 当前操作配置名称
+    For Each k In 保存名称table
+        保存路径 = 路径 & "/" & k & ".txt"
+        Call file.write(保存路径, "")
+        当前操作配置名称 = k
+        Exit For
+    Next
+    UIP.SetAttribute "界面提示1", {"显示内容":"操作提示:"&当前操作配置名称&"开始保存>>>"}
+    Dim json配置路径
+    json配置路径 = 路径 & "/" & ".uip.config.json"
+    TracePrint json配置路径
+//    Dim 日志路径 ="/storage/emulated/0/Pictures/日志.txt"
+//    Call File.Write(日志路径, "")
+//    Call 日志(日志路径, json配置路径& "\n")
+    Dim 文件内容 = file.Read(json配置路径)
+    TracePrint 文件内容
+//    Call 日志(日志路径, 文件内容& "\n")
+    //    Dim i
+    //    Dim 求余数
+    UIP.SetAttribute "界面提示1", {"显示内容":"操作提示:"&当前操作配置名称&"保存中>>>【10秒内】"}
+    Dim table=Encode.JsonToTable(文件内容)
+    For Each k , v  In table  'k 相当于 控件名   v是控件内容
+//        Call 日志(日志路径, k & "\n")
+        Call File.Append(保存路径, k & "\n")'这一行写入控件内容 文本 
+        TracePrint k,v
+        dim table返回值 = Uip.GetAttribute(k)'返回table 数据  table数据,控件的各属性及其对应的值以Key-value的形式存储在返回的table数据中 
+        Dim json字符串
+        json字符串 = Encode.TableToJson(table返回值) 
+        Call File.Append(保存路径, json字符串 & "\n")'这一行写入 key-ualve 表 类型数据 读取时候 做转换
+//        Dialog.MsgBox json字符串, 2
+//        Exit Function
+        //        i = i + 1
+        //        求余数 = i mod 2
+        //        If 求余数 = 0 Then 
+        //            UIP.SetAttribute "界面提示", {"显示内容":"操作提示:"&当前操作配置名称&"保存中>>>"}
+        //        ElseIf 求余数 = 1 Then
+        //            UIP.SetAttribute "界面提示", {"显示内容":"操作提示:"&当前操作配置名称&"保存中>>>>>>"}
+        //        End If
+    Next
+    UIP.SetAttribute "界面提示1", {"显示内容":"操作提示:"&当前操作配置名称&"保存完成>>>"}
+End Function
+Function 读取配置1
+    Dim 路径=GetSdcardDir()
+    Dim 读取路径
+    Dim 保存名称table = Uip.GetAttribute("保存名称2")'返回table 数据
+    //Dialog.MsgBox 保存名称table["初始文本"], 2
+    Dim 当前操作配置名称
+    //For Each k In 保存名称table
+        //Dialog.MsgBox 路径&k, 2
+        读取路径 = 路径 & "/" & 保存名称table["初始文本"] & ".txt"
+        当前操作配置名称 = 保存名称table["初始文本"]
+    //Next
+    //Dialog.MsgBox "路径"&读取路径, 2
+//    Dim 日志路径 ="/storage/emulated/0/Pictures/日志.txt"
+//    Call File.Write(日志路径, "")
+    Dim 文本arr=file.readlines(读取路径)
+    Dim 行数=UBound(文本arr)+1
+    If 行数 >= 2 Then 
+        UIP.SetAttribute "界面提示1", {"显示内容":"操作提示:"&当前操作配置名称&"读取中>>>"}
+    Else 
+        UIP.SetAttribute "界面提示1", {"显示内容":"操作提示:"&当前操作配置名称&"数据为空,没有保存过数据"}
+        Exit Function
+    End If
+    Dim 现有界面配置控件table
+    Dim 控件名称
+    Dim table内容
+    Dim table字符串
+    //    Dim 求余数
+    UIP.SetAttribute "界面提示1", {"显示内容":"操作提示:"&当前操作配置名称&"读取中>>>【10秒左右】"}
+    For i = 1 To 行数
+//        日志(日志路径, "行数" & CStr(i) & "\n")
+        If i mod 2 = 1 Then
+            控件名称 =文本arr(i-1)
+//            日志(日志路径,"aaa" & 控件名称 & "\n")
+        ElseIf 行数 mod 2 = 0 Then
+            table内容 = 文本arr(i-1)
+//            日志(日志路径,"bbb" & table内容 & "\n")
+            table字符串 = Encode.JsonToTable(table内容)
+            //根据界面配置获取读取的是 提示内容还是/选项
+            现有界面配置控件table = Uip.GetAttribute(控件名称)
+            If table字符串["提示内容"] <> null Then //根据界面配置获取读取的是 提示内容还是/选项
+            	If table字符串["提示内容"] <> 现有界面配置控件table["提示内容"] Then 
+            		table字符串["提示内容"] = 现有界面配置控件table["提示内容"]
+            	End If
+            ElseIf table字符串["选项"] <> null Then//根据界面配置获取读取的是 提示内容还是/选项
+            	table字符串["选项"] = 现有界面配置控件table["选项"]
+            End If
+            UIP.SetAttribute 控件名称, table字符串
+        End If
+        //        求余数 = i mod 3
+        //        If 求余数 = 0 Then 
+        //            UIP.SetAttribute "界面提示", {"显示内容":"操作提示:"&当前操作配置名称&"读取中>>>"}
+        //        ElseIf 求余数 = 1 Then
+        //            UIP.SetAttribute "界面提示", {"显示内容":"操作提示:"&当前操作配置名称&"读取中>>>>>>"}
+        //        ElseIf 求余数 = 2 Then
+        //            UIP.SetAttribute "界面提示", {"显示内容":"操作提示:"&当前操作配置名称&"读取中>>>>>>>>>"}
+        //        End If
+    Next
+    UIP.SetAttribute "界面提示1", {"显示内容":"操作提示:"&当前操作配置名称&"读取完毕"}
+End Function
+
+Function 日志(路径, 内容)
+    Call File.Append(路径, 内容)
+End Function
+Function 下载配置云配置
+    Dim 云配置账号 = UIP.GetAttribute("不加载输入框云配置账号")//ReadUIConfig("不加载输入框云配置账号","")
+    Dim 提示文本 = UIP.GetAttribute("云配置操作提示")
+    If 云配置账号["初始文本"] <> "" Then 
+        提示文本["显示内容"] = "操作提示:云配置账号存在..."
+        UIP.SetAttribute "云配置操作提示", 提示文本
+    Else 
+        Dialog.MsgBox "云配置账号为空,请设置正确账号.", 2
+        Exit Function
+    End If
+    Dim tb1 = UIP.GetAttribute("不加载云配置名称输入框")
+    Dim 云配置配置名称 = tb1["初始文本"]
+    
+    If 云配置配置名称 <> "" Then 
+        提示文本["显示内容"] = "操作提示:云配置名称存在..."
+        UIP.SetAttribute "云配置操作提示", 提示文本
+    Else 
+        Dialog.MsgBox "云配置名称为空,请填写配置名称再上传.", 2
+        Exit Function
+    End If
+    Dim 数据库表名 = 云配置账号["初始文本"]
+    Dim 检是否全数字=CInt(数据库表名)
+    If 检是否全数字 > 0 Then 
+    	Dialog.MsgBox "不支持全数字,请使用英文数字混合账号", 1
+    	Exit Function
+    End If
+    提示文本["显示内容"] = "操作提示:开始下载...请勿操作【10秒内】"
+    UIP.SetAttribute "云配置操作提示", 提示文本
+    Import "zm.luae" //导入插件,只需执行一次
+    zm.Init  //初始化插件,只需执行一次
+    //例子1 初始化创建表, 并且不清空以前数据
+    zm.NetDataInit "http://81.69.31.217/sql.php",数据库表名 , "cq3BSSStklove213"
+    //获取密码
+    Dim 密码 = zm.NetDataGet("云配置上传密码",数据库表名)
+//    Dialog.MsgBox 密码, 1
+    If 密码 = null or 密码 = "" Then 
+        //判断密码为空或者null
+        Dialog.MsgBox "云配置不存在,请确认云配置账号没有填错,上传云配置后再下载.", 1
+        Exit Function
+    End If
+    //	Dim 云配置配置名称 = "配置名称"&ReadUIConfig("不加载云配置输入框","")
+    //判断指定的配置名称有没有数据
+    Dim 数据库指定配置内容 = zm.NetDataGet(云配置配置名称,数据库表名)
+    TracePrint 云配置配置名称,数据库表名
+    If 数据库指定配置内容 = "" or 数据库指定配置内容 = null Then 
+        Dialog.MsgBox "【"&云配置配置名称&"】内没有数据,请检查配置名称是否正确", 1
+        Exit Function
+    End If
+	
+    Dim 选项 = zm.NetDataGet(云配置配置名称,数据库表名)
+    提示文本["显示内容"] = "操作提示:开始配置...请勿操作"
+	
+    UIP.SetAttribute "云配置操作提示", 提示文本
+    Dim 配置ret//
+    提示文本["显示内容"] = "操作提示:正在配置...【10秒内】"
+    UIP.SetAttribute "云配置操作提示", 提示文本
+    For Each k , v In 选项
+        配置ret = UIP.GetAttribute(k)
+        Select Case zm.Type(v)
+        Case "boolean"//TracePrint "真假"
+            If v = true Then 
+                //Dialog.MsgBox k&"-1", 1
+                配置ret["选中"] = true
+            ElseIf v = False Then
+                //Dialog.MsgBox k&"-2", 1
+                配置ret["选中"] = False
+            Else 
+                Dialog.MsgBox k & "-3", 1
+                Exit Function
+            End If
+    		
+        Case "number"//TracePrint "数值"
+            配置ret["初始选项"] = v
+        Case "string"//TracePrint "文本"
+            配置ret["初始文本"] = v
+        Case Else//TracePrint "其它",v
+            Dialog.MsgBox "其它"&k, 1
+        End Select
+        If k = "文本型联众账号" or k = "文本型联众密码" or k = "文本型登陆账号" or k = "文本型登陆密码" or k = "不加载输入框上传密码" or k = "文本型激活码测试" Then 
+		
+		ElseIf k = "文本型plustokenl输入框" Then
+			
+        Else 
+            UIP.SetAttribute k, 配置ret
+        End If
+    Next
+    提示文本["显示内容"] = "操作提示:配置结束..."
+    UIP.SetAttribute "云配置操作提示", 提示文本
+    Dialog.MsgBox "云配置账号:【"&数据库表名&"】\r\n下载【"&云配置配置名称&"】完成\r\n请核对功能设置勾选/参数是否和下载的一致!\r\n登陆账号密码/联众账号密码未变动,请注意核对", 1
+End Function
+
+Function 上传配置云配置
+	
+    Dim 云配置账号 = UIP.GetAttribute("不加载输入框云配置账号")//ReadUIConfig("不加载输入框云配置账号","")
+    Dim 云配置上传密码 = UIP.GetAttribute("不加载输入框上传密码")//ReadUIConfig("不加载输入框上传密码")
+    Dim tb1 = UIP.GetAttribute("不加载云配置名称输入框")
+    Dim 云配置配置名称 = tb1["初始文本"]
+    Dim 提示文本 = UIP.GetAttribute("云配置操作提示")
+    If 云配置账号["初始文本"] <> "" Then 
+        提示文本["显示内容"] = "操作提示:云配置账号存在..."
+        UIP.SetAttribute "云配置操作提示", 提示文本
+    Else 
+        Dialog.MsgBox "云配置账号为空,请设置正确账号.", 2
+        Exit Function
+    End If
+    If 云配置上传密码["初始文本"] <> "" Then 
+        提示文本["显示内容"] = "操作提示:云配置密码存在..."
+        UIP.SetAttribute "云配置操作提示", 提示文本
+    Else 
+        Dialog.MsgBox "云配置上传密码为空,请填写上传密码.", 2
+        Exit Function
+    End If
+    If 云配置配置名称 <> "" Then 
+        提示文本["显示内容"] = "操作提示:云配置名称存在..."
+        UIP.SetAttribute "云配置操作提示", 提示文本
+    Else 
+        Dialog.MsgBox "云配置名称为空,请填写配置名称再上传.", 2
+        Exit Function
+    End If
+    Dim 数据库表名 = 云配置账号["初始文本"]
+    Dim 检是否全数字=CInt(数据库表名)
+    If 检是否全数字 > 0 Then 
+    	Dialog.MsgBox "不支持全数字,请使用英文数字混合账号", 1
+    	Exit Function
+    End If
+    提示文本["显示内容"] = "操作提示:开始上传..."
+    UIP.SetAttribute "云配置操作提示", 提示文本
+    Import "zm.luae" //导入插件,只需执行一次
+    zm.Init  //初始化插件,只需执行一次
+    //例子1 初始化创建表, 并且不清空以前数据
+    zm.NetDataInit "http://81.69.31.217/sql.php",数据库表名 , "cq3BSSStklove213"
+    //获取密码//获取密码//获取密码//获取密码//获取密码//获取密码
+    Dim 密码 = zm.NetDataGet("云配置上传密码",数据库表名)//获取密码
+//    Dialog.MsgBox 密码, 1
+    If 密码 = null or 密码 = "" Then //未上传过密码 所以初始上传一次密码
+        //set设置密码
+        zm.NetDataSet "云配置上传密码", 云配置上传密码["初始文本"], 数据库表名
+        //		TracePrint "云配置上传密码", 云配置上传密码, 数据库表名
+        Dialog.MsgBox "设置云配置上传密码："&云配置上传密码["初始文本"], 1
+    ElseIf 密码 <> 云配置上传密码["初始文本"] Then 
+        Dialog.MsgBox "云配置上传密码错误.", 1
+        Exit Function
+    End If
+    //	Dialog.MsgBox "设置过的密码："&密码, 1
+    //	Dialog.MsgBox "输入的密码："&云配置上传密码["初始文本"], 1
+    //	If 密码 <> 云配置上传密码["初始文本"] Then 
+    //		Dialog.MsgBox "云配置上传密码错误.", 1
+    //		Exit Function
+    //	End If
+    //	Exit Function
+    提示文本["显示内容"] = "操作提示:上传中..."
+    UIP.SetAttribute "云配置操作提示", 提示文本
+    Dim json配置路径 = GetSdcardDir() & "/" & ".uip.config.json"
+    'TracePrint json配置路径
+    Dim 文件内容 = file.Read(json配置路径)
+    Dim table=Encode.JsonToTable(文件内容)
+    
+    Dim 配置ret
+    提示文本["显示内容"] = "操作提示:正在读取...[10秒内]"
+    UIP.SetAttribute "云配置操作提示", 提示文本
+    For Each k , v In table
+        配置ret = UIP.GetAttribute(k)//获取界面配置上的选项 选中或者设置结果//
+        Select Case zm.Type(v)//判断 值 的类型 /布尔/整数=下拉框/文本等于输入框
+        Case "boolean"//TracePrint "真假"
+            If v = true Then 
+                //Dialog.MsgBox k&"-1", 1
+                //    			配置ret["选中"] = true
+            ElseIf v = False Then
+                //Dialog.MsgBox k&"-2", 1
+                //配置ret["选中"] = False
+            Else 
+                Dialog.MsgBox k & "-3", 1
+                Exit Function
+            End If
+            table[k] = 配置ret["选中"]
+        Case "number"//TracePrint "数值"
+            //配置ret["初始选项"] = v
+            table[k] = 配置ret["初始选项"]
+        Case "string"//TracePrint "文本"
+            //配置ret["初始文本"] = v
+            table[k] = 配置ret["初始文本"]
+        Case Else//TracePrint "其它",v
+            Dialog.MsgBox "其它"&k, 1
+        End Select
+    Next
+    
+    //云配置:不会上传账号密码/云配置设置/联众账号密码
+    table["文本型联众账号"] = ""
+    table["文本型联众密码"] = ""
+    table["文本型登陆账号"] = ""
+    table["文本型登陆密码"] = ""
+    table["不加载输入框上传密码"] = ""
+    table["文本型激活码测试"] = ""//界面读取的激活码不能上传
+    table["文本型plustokenl输入框"] = ""//token通知不会上传
+    
+    //云配置上传配置
+    zm.NetDataSet 云配置配置名称, table, 数据库表名
+    //TracePrint 云配置配置名称, table, 数据库表名
+    提示文本["显示内容"] = "操作提示:云配置上传完成..."
+    UIP.SetAttribute "云配置操作提示", 提示文本
+    Dialog.MsgBox "云配置账号:"&数据库表名&"\r\n配置名称【"&云配置配置名称&"】\r\n云配置上传完成.", 1
+End Function
+
+Function 路径path前缀()
+	Dim 路径Ret = 0
+    Dim 路径前缀 = GetSdcardDir()&"/AAAconfig"
+    
+    //    路径前缀=路径前缀&"/"
+    路径Ret = Dir.Exist(路径前缀)
+    
+    If Dir.Exist(路径前缀) = 2 Then '路径是否存在 
+    Else 
+        路径Ret = Dir.Create(路径前缀)
+        
+    End If
+    路径前缀 =  GetSdcardDir()&"/AAAconfig"&"/"&"ryzs"
+    
+    If Dir.Exist(路径前缀) = 2 Then '路径是否存在 
+    Else 
+        路径Ret = Dir.Create(路径前缀)
+        
+    End If
+    路径path前缀 = 路径前缀
+    
+End Function
+Function 查看BOSS记录_排序模式()
+	
+	dim ret = UIP.GetAttribute("下拉框本地存储")
+	ret["初始选项"] = ret["初始选项"] + 1
+	
+	dim path = 路径path前缀()&"/bossjl"&Cstr(ret["初始选项"])&".txt"
+	//Dialog.MsgBox path, 2
+	Dim 文件内容 = file.Read(path)
+  	//Dialog.MsgBox 文件内容, 2
+  	If 文件内容 = null Then 
+  		ShowMessage "本地存储"&Cstr(ret["初始选项"])&"没有复活数据"
+    	Exit Function
+  	End If
+    //    UIP.SetAttribute "界面提示", {"显示内容":"操作提示:"&""&"保存中>>>【10秒内】"}
+    Dim table=Encode.JsonToTable(文件内容)
+	
+	dim 隔离tablepath = 路径path前缀()&"/bossgl"&Cstr(ret["初始选项"])&"sj.txt"
+	Dim 隔离table文件内容 = file.Read(隔离tablepath)
+    //    UIP.SetAttribute "界面提示", {"显示内容":"操作提示:"&""&"保存中>>>【10秒内】"}
+    Dim 隔离table = {null}
+    If 隔离table文件内容 <> null Then 
+    	隔离table=Encode.JsonToTable(隔离table文件内容)
+    End If
+    Dim 显示数据 = ""
+//    Dialog.MsgBox 文件内容, 2
+    
+    
+   
+    
+    Dim jlPath = 路径path前缀()&"/bosscm"&Cstr(ret["初始选项"])&".txt"//BOSS记录1
+    文件内容 = file.Read(jlPath)
+    If 文件内容 = null Then 
+  		ShowMessage "本地存储"&Cstr(ret["初始选项"])&"没有复活数据A"
+    	Exit Function
+  	End If
+    Dim 所有首领层名 = Encode.JsonToTable(文件内容)
+    
+    jlPath = 路径path前缀()&"/bosssb"&Cstr(ret["初始选项"])&".txt"//BOSS记录1
+    文件内容 = file.Read(jlPath)
+    If 文件内容 = null Then 
+  		ShowMessage "本地存储"&Cstr(ret["初始选项"])&"没有复活数据B"
+    	Exit Function
+  	End If
+    Dim 所有首领排序表 = Encode.JsonToTable(文件内容)
+    
+    
+    For Each 层名 In 所有首领层名
+    	显示数据 = 显示数据 & "=====" & 层名 & "层=====\r\n"
+    	For Each v , k In 所有首领排序表[层名]
+    		//Dialog.MsgBox 层名&"="&k, 2
+    		Dim 隔离剩余时间 = -1
+    		If 隔离table[k] <> null Then 
+        		
+        		隔离剩余时间 = 隔离table[k] - Time()
+        		
+        		隔离剩余时间 = Fix(隔离剩余时间 / 60)
+		//	        	Dialog.MsgBox k&"==="&隔离table[k]&"==="&Time()&"=="&隔离剩余时间, 2
+		//        		Exit Function
+    		End If
+    		
+		//        Dialog.MsgBox "k"&k&隔离剩余时间, 2
+		//        EndScript 
+    		Dim 剩余秒数 = 0
+    		剩余秒数 = CInt(table[k]) - Time()
+    		//没有获取到时间 = 0  或者 隔离剩余时间大于0 显示隔离
+    		If CInt(table[k]) = 0 or 隔离剩余时间 > 0 Then 
+		//        	If 隔离table[k]
+		//        		If 隔离剩余时间 > 1440 Then 
+		//        			剩余秒数 = "【失败上限隔离】"
+		//        		Else 
+        		If Cint(隔离table[k]) = 3000000000 Then 
+        			剩余秒数 = "【主线已完成不打】"
+        		ElseIf 隔离剩余时间 > 0 Then 
+        			剩余秒数 = "【隔离剩余"&隔离剩余时间&"分】"
+        		Else 
+        			剩余秒数 = "【还未记录】"
+        		End If
+    		ElseIf 剩余秒数 <= 0 Then 
+        		剩余秒数 = "【已经复活】"
+    		Else 
+        		剩余秒数 = Fix(剩余秒数 / 60)
+        		剩余秒数 = "【"&Cstr(剩余秒数)&"分复活】"
+    		End If
+    		显示数据 = 显示数据 & k & "" & 剩余秒数 & "\r\n"
+    	Next
+    Next
+    
+//    Exit Function
+//    For Each k,v In table
+//    	
+//    	显示数据 = 显示数据 & k & "" & 剩余秒数 & "\r\n"
+//    Next
+    
+    
+    
+	If 显示数据 = "" Then 
+    	ShowMessage  "本地存储"&Cstr(ret["初始选项"])&"没有记录BOSS复活数据"
+    	Exit Function
+    End If
+    '创建一个名称为"layout1"的布局控件
+	UI.Newlayout ("layout1") 
+	UI.SetTitleText("layout1","BOSS记录复活时间")  '修改其标题为："UI界面"
+
+	'添加一个名称为"文字框1"，初始内容为"姓名："的文字框控件
+	UI.AddTextView("layout1", "BOSS记录复活时间",显示数据) 
+	'显示名称为："layout1" 的布局控件
+	UI.Show ("layout1") 
+End Function
+
+Function 删除BOSS记录()
+	dim ret = UIP.GetAttribute("下拉框本地存储")
+	ret["初始选项"] = ret["初始选项"] + 1
+	dim path = 路径path前缀()&"/bossjl"&Cstr(ret["初始选项"])&".txt"
+	Dir.Delete (path) //删除该文本文件
+	Delay 100
+	If File.Read(path) = null Then 
+		ShowMessage  "本地存储"&Cstr(ret["初始选项"])&"删除BOSS记录成功"
+	Else 
+		ShowMessage  "本地存储"&Cstr(ret["初始选项"])&"删除BOSS记录失败"
+	End If
+	
+End Function
+
+Function 删除BOSS隔离()
+	
+	dim ret = UIP.GetAttribute("下拉框本地存储")
+	ret["初始选项"] = ret["初始选项"] + 1
+	dim path = 路径path前缀()&"/bossgl"&Cstr(ret["初始选项"])&"sj.txt"
+	Dir.Delete (path) //删除该文本文件
+	Delay 100
+	If File.Read(path) = null Then 
+		ShowMessage "本地存储"&Cstr(ret["初始选项"])&"删除BOSS隔离成功"
+	Else 
+		ShowMessage "本地存储"&Cstr(ret["初始选项"])&"删除BOSS隔离失败"
+	End If
+End Function
+Function 查看复活时间
+	dim ret = UIP.GetAttribute("下拉框本地存储")
+	ret["初始选项"] = ret["初始选项"] + 1
+	dim path = 路径path前缀()&"/bossfh"&Cstr(ret["初始选项"])&"sj.txt"
+	Dim 文件内容 = file.Read(path)
+  	//dialog.MsgBox 文件内容, 2
+  	
+  	If 文件内容 = null Then 
+  		ShowMessage "本地存储"&Cstr(ret["初始选项"])&"没有复活时间数据"
+    	Exit Function
+  	End If
+    //    UIP.SetAttribute "界面提示", {"显示内容":"操作提示:"&""&"保存中>>>【10秒内】"}
+    Dim table=Encode.JsonToTable(文件内容)
+	Dim 显示数据 = ""
+	For Each k , v In table
+		显示数据 = 显示数据 & "等级 = " & k & " 复活时间 = " & v & "秒\r\n"
+	Next
+	If 显示数据 = "" Then 
+    	ShowMessage  "本地存储"&Cstr(ret["初始选项"])&"没有记录复活时间数据"
+    	Exit Function
+    End If
+    '创建一个名称为"layout1"的布局控件
+	TracePrint UI.Newlayout ("layout1") 
+	TracePrint UI.SetTitleText("layout1","BOSS复活时间数据")  '修改其标题为："UI界面"
+
+	'添加一个名称为"文字框1"，初始内容为"姓名："的文字框控件
+	TracePrint UI.AddTextView("layout1", "BOSS隔离数据",显示数据) 
+	'显示名称为："layout1" 的布局控件
+	TracePrint UI.Show ("layout1") 
+End Function
+Function 删除复活时间
+	dim ret = UIP.GetAttribute("下拉框本地存储")
+	ret["初始选项"] = ret["初始选项"] + 1
+	dim path = 路径path前缀()&"/bossfh"&Cstr(ret["初始选项"])&"sj.txt"
+	Dir.Delete (path) //删除该文本文件
+	Delay 100
+	If File.Read(path) = null Then 
+		ShowMessage  "本地存储"&Cstr(ret["初始选项"])&"删除复活时间记录成功"
+	Else 
+		ShowMessage  "本地存储"&Cstr(ret["初始选项"])&"删除复活时间记录失败"
+	End If
+End Function
+Function 查看BOSS隔离
+	dim ret = UIP.GetAttribute("下拉框本地存储")
+	ret["初始选项"] = ret["初始选项"] + 1
+	dim path = 路径path前缀()&"/bossgl"&Cstr(ret["初始选项"])&"sj.txt"
+	Dim 文件内容 = file.Read(path)
+  	//dialog.MsgBox 文件内容, 2
+  	
+  	If 文件内容 = null Then 
+  		ShowMessage "本地存储"&Cstr(ret["初始选项"])&"没有隔离数据"
+    	Exit Function
+  	End If
+    //    UIP.SetAttribute "界面提示", {"显示内容":"操作提示:"&""&"保存中>>>【10秒内】"}
+    Dim table=Encode.JsonToTable(文件内容)
+	Dim 显示数据 = ""
+	
+    Dim jlPath = 路径path前缀()&"/bosscm"&Cstr(ret["初始选项"])&".txt"//BOSS记录1
+    文件内容 = file.Read(jlPath)
+    If 文件内容 = null Then 
+  		ShowMessage "本地存储"&Cstr(ret["初始选项"])&"没有复活数据A"
+    	Exit Function
+  	End If
+    Dim 所有首领层名 = Encode.JsonToTable(文件内容)
+    
+    jlPath = 路径path前缀()&"/bosssb"&Cstr(ret["初始选项"])&".txt"//BOSS记录1
+    文件内容 = file.Read(jlPath)
+    If 文件内容 = null Then 
+  		ShowMessage "本地存储"&Cstr(ret["初始选项"])&"没有复活数据B"
+    	Exit Function
+  	End If
+    Dim 所有首领排序表 = Encode.JsonToTable(文件内容)
+    
+    For Each 层名 In 所有首领层名
+    	//显示数据 = 显示数据 & "=====" & 层名 & "层=====\r\n"
+    	For Each v , k In 所有首领排序表[层名]
+    		
+//    		Dialog.MsgBox v&"="&k, 2
+//    		Dialog.MsgBox table[v]&"="&table[k], 2
+//    		
+//    		Exit Function
+			//If table[v] <> null Then 
+				Dim 剩余秒数 = 0
+        		剩余秒数 = Cint(table[k]) - Time()
+//        		Dialog.MsgBox "剩余秒数=" & 剩余秒数, 2
+//        		Exit Function
+        		If CInt(table[k]) = 0 Then 
+        			剩余秒数 = "【还未记录】"
+        		ElseIf Cint(table[k]) = 3000000000 Then 
+        			剩余秒数 = "【主线已完成不打】"
+        		ElseIf 剩余秒数 <= 0 Then 
+        			剩余秒数 = "【解除隔离】"
+        		Else 
+        			剩余秒数 = Fix(剩余秒数 / 60)
+		//        	If 剩余秒数 > 1440 Then 
+		//        		剩余秒数 = "【失败上限隔离】"
+		//        	Else 
+        				剩余秒数 = "【"&Cstr(剩余秒数)&"分解除隔离】"
+		//        	End If
+        			
+        		End If
+        		If 剩余秒数 = "【还未记录】" Then 
+        			
+        		Else 
+        			//显示数据 = 显示数据 & 地图 & ":" & BOSS名称 & "" & 剩余秒数 & "\r\n"
+        			显示数据 = 显示数据 & k & "" & 剩余秒数 & "\r\n"
+        		End If
+			//End If
+    		
+    	Next
+    Next
+    
+    
+    
+    If 显示数据 = "" Then 
+    	ShowMessage  "本地存储"&Cstr(ret["初始选项"])&"没有记录BOSS隔离数据"
+    	Exit Function
+    End If
+    '创建一个名称为"layout1"的布局控件
+	TracePrint UI.Newlayout ("layout1") 
+	TracePrint UI.SetTitleText("layout1","BOSS隔离数据")  '修改其标题为："UI界面"
+
+	'添加一个名称为"文字框1"，初始内容为"姓名："的文字框控件
+	TracePrint UI.AddTextView("layout1", "BOSS隔离数据",显示数据) 
+	'显示名称为："layout1" 的布局控件
+	TracePrint UI.Show ("layout1") 
+End Function
+
+Function 优先级同步一样()
+	Dim cityItem
+	For i = 1 To 8
+		cityItem = UIP.GetAttribute("不加载优先级" & i)
+		If cityItem = null Then 
+			Exit For
+		Else 
+			cityItem["初始选项"] = 8
+			Uip.setAttribute("不加载优先级" & i, cityItem)
+		End If
+	Next
+End Function
+
+Function 自动记录包名
+	
+	Call File.Write(GetSdcardDir() & "/dlbb.txt", "FZ168888816")
+	delay 200
+	Dim 文本内容 = File.Read(GetSdcardDir()&"/dlbb.txt")
+	If 文本内容 = "FZ168888816" Then 
+		//包名//com默认自带 = yyxn.xn
+		UIP.SetAttribute "多选框cjy11065开发", {"提示内容":"售后vx:FZ168888816 [修改此处文字后果自负!]", "选中":false}
+		UIP.SetAttribute "例子文字框15", {"显示内容":"1.购买或者反馈BUG请联系v:FZ168888816"}
+		UIP.SetAttribute "运营商声明5", {"显示内容":"4.售后/客服vx:FZ168888816,修改此软件代码所造成的后果自负"}
+	End If
+	If 文本内容 = "tjxjbchu" Then 
+		UIP.SetAttribute "多选框cjy11065开发", {"提示内容":"售后vx:tjxjbchu [修改此处文字后果自负!]", "选中":false}
+		UIP.SetAttribute "例子文字框15", {"显示内容":"1.购买或者反馈BUG请联系v:tjxjbchu"}
+		UIP.SetAttribute "运营商声明5", {"显示内容":"4.售后/客服vx:tjxjbchu,修改此软件代码所造成的后果自负"}
+	End If
+	If 文本内容 = "kkk99778866" Then 
+		UIP.SetAttribute "多选框cjy11065开发", {"提示内容":"售后vx:kkk99778877 [修改此处文字后果自负!]", "选中":false}
+		UIP.SetAttribute "例子文字框15", {"显示内容":"1.购买或者反馈BUG请联系v:kkk99778877"}
+		UIP.SetAttribute "运营商声明5", {"显示内容":"4.售后/客服vx:kkk99778866,修改此软件代码所造成的后果自负"}
+		
+	End If
+	If 文本内容 = "Whao68888" Then 
+		//包名//com默认自带 = yyxmf.xmf
+		UIP.SetAttribute "多选框cjy11065开发", {"提示内容":"售后vx:Whao68888 [修改此处文字后果自负!]", "选中":false}
+		UIP.SetAttribute "例子文字框15", {"显示内容":"1.购买或者反馈BUG请联系v:Whao68888"}
+		UIP.SetAttribute "运营商声明5", {"显示内容":"4.售后/客服vx:Whao68888,修改此软件代码所造成的后果自负"}
+	End If
+	If 文本内容 = "cjy11065" or 文本内容 = "cjy11062" Then 
+		//包名//com默认自带 = yyaayo.hg
+		UIP.SetAttribute "多选框cjy11065开发", {"提示内容":"售后vx:cjy11065 [修改此处文字后果自负!]", "选中":false}
+		UIP.SetAttribute "例子文字框15", {"显示内容":"1.购买或者反馈BUG请联系v:cjy11065"}
+		UIP.SetAttribute "运营商声明5", {"显示内容":"4.售后/客服vx:cjy11065,修改此软件代码所造成的后果自负"}
+	End If
+End Function
+Function 技能位置顺序
+    TracePrint UI.Newlayout ("布局1") 
+    '创建一个显示按键精灵官网的浏览器控件，宽高默认自适应大小
+    TracePrint UI.AddTextView("布局1", "文字框1", "【点击右下继续】") 
+    TracePrint UI.SetTextSize("文字框1", 35)
+    TracePrint UI.NewRow("布局1", "new_row_" & 1)
+    TracePrint UI.AddWebView("布局1", "web_view", "https://img.alicdn.com/imgextra/i2/436957657/O1CN017qbdtN26QxjSbmmWO_!!436957657.png")
+    '显示名称为："layout1" 的布局控件
+    UI.SetTitleBackColor("布局1","0000FF") '结果显示的布局1标题栏颜色是红色
+    TracePrint UI.SetTitleText("布局1","[请坚屏查看]技能顺序位置")  '修改其标题为："UI界面"
+    TracePrint UI.Show ("布局1")
+End Function
