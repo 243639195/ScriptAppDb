@@ -69,13 +69,25 @@
     
     const-string v0, "【onCheckAppResult】-> 111111111111111111111111"
     
-    invoke-static {v0}, Lcom/android/killer/Log;->LogStr(Ljava/lang/String;)V
-    
-    
+    invoke-static {v0}, Lcom/android/killer/Log;->LogStr(Ljava/lang/String;)V 
+
+    # 1. STATE_APP设为2
     iget-object v0, p0, Lcom/ds/daisi/pay/HandlerCheckAppResult;->appContext:Lcom/ds/daisi/AppContext;
     const/4 v1, 0x2
     iput v1, v0, Lcom/ds/daisi/AppContext;->STATE_APP:I
-    # === 插入结束 ===
+    
+    # 2. payCheckType设为0（正式版）
+    iput v1, v0, Lcom/ds/daisi/AppContext;->payCheckType:I
+    
+    # 3. ExpireTime设成极大值（或你喜欢的未来时间戳）
+    const-wide v2, 0x7FFFFFFFFFFFFFFF
+    iput-wide v2, v0, Lcom/ds/daisi/AppContext;->ExpireTime:J
+    
+    # 4. dueTime设成极大值
+    const v3, 0x7fffffff
+    iput v3, v0, Lcom/ds/daisi/AppContext;->dueTime:I
+   # === 插入结束 ===
+
 
 
     .line 19
